@@ -1,26 +1,26 @@
-// server/src/services/__tests__/coinbaseProService.test.ts
-import { coinbaseProService } from "../coinbaseProService";
+// src/services/__tests__/coinbaseProService.test.ts
 import WebSocket from "ws";
-import { Server, Socket } from "socket.io";
+import { createCoinbaseProService } from "../coinbaseProService";
 
 jest.mock("ws");
-jest.mock("socket.io");
 
 describe("CoinbaseProService", () => {
   let wsMock: jest.Mocked<WebSocket>;
-  let ioMock: jest.Mocked<Server>;
-  let socketMock: jest.Mocked<Socket>;
+  let coinbaseProService: ReturnType<typeof createCoinbaseProService>;
 
   beforeEach(() => {
+    // Mock the WebSocket instance
     wsMock = new WebSocket(
       "wss://ws-feed.pro.coinbase.com"
     ) as jest.Mocked<WebSocket>;
-    ioMock = new Server() as jest.Mocked<Server>;
-    socketMock = {} as jest.Mocked<Socket>;
+    (wsMock.send as jest.Mock) = jest.fn();
+
+    // Create the service with the mocked WebSocket
+    coinbaseProService = createCoinbaseProService(wsMock);
   });
 
   it("should send a subscribe message", () => {
-    coinbaseProService.subscribe("BTC-USD", socketMock);
+    coinbaseProService.subscribe("BTC-USD", {} as any);
     expect(wsMock.send).toHaveBeenCalledWith(
       JSON.stringify({
         type: "subscribe",
@@ -31,7 +31,7 @@ describe("CoinbaseProService", () => {
   });
 
   it("should send an unsubscribe message", () => {
-    coinbaseProService.unsubscribe("BTC-USD", socketMock);
+    coinbaseProService.unsubscribe("BTC-USD", {} as any);
     expect(wsMock.send).toHaveBeenCalledWith(
       JSON.stringify({
         type: "unsubscribe",
