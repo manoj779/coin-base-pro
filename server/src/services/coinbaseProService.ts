@@ -1,6 +1,7 @@
 // server/src/services/coinbaseProService.ts
 import WebSocket from "ws";
 import { Server, Socket } from "socket.io";
+import { io } from "../app";
 
 const ws = new WebSocket("wss://ws-feed.pro.coinbase.com");
 
